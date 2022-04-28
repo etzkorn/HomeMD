@@ -7,18 +7,23 @@ library(maps)
 library(mapdata)
 library(dplyr)
 
-md_county <- subset(map_data("county"), region == "maryland")
-md_fill <- 
-tibble(subregion = unique(md_county$subregion)) %>%
-mutate(y = rnorm(n()))
-
-md_county <- left_join(md_county, md_fill)
-
-  ggplot() +
-  coord_fixed(1.3) + 
-  geom_polygon(data = md_county, 
-               aes(x = long, y = lat, group = group, fill = y), 
-               color = "white") +
-  theme_void()+ 
-  theme(legend.position = "none")
+        (
+            map_data("county") %>%
+            subset(region == "maryland") %>% 
+            group_by(group) %>%
+            mutate(y = rnorm(1)) %>%
+            ungroup %>%
+            ggplot() +
+            coord_fixed(1.3) + 
+            geom_polygon(
+                   aes(x = long, y = lat, group = group, fill = y), 
+                   color = "white") +
+            theme_void()+ 
+            theme(legend.position = "none")
+        )%>%
+        ggplotly(tooltip = c("subregion")) %>%
+        layout(xaxis = list(fixedrange = TRUE,
+                            showgrid = FALSE), 
+               yaxis = list(fixedrange = TRUE,
+                            showgrid = FALSE)) 
   
